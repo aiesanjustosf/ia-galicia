@@ -11,10 +11,10 @@ import streamlit as st
 HERE = Path(__file__).parent
 LOGO = HERE / "logo_aie.png"
 FAVICON = HERE / "favicon-aie.ico"
-st.set_page_config(page_title="IA Resumen Bancario", page_icon=str(FAVICON) if FAVICON.exists() else None)
+st.set_page_config(page_title="IA Resumen Bancario Galicia", page_icon=str(FAVICON) if FAVICON.exists() else None)
 if LOGO.exists():
     st.image(str(LOGO), width=200)
-st.title("IA Resumen Bancario")
+st.title("IA Resumen Bancario Galicia")
 
 # --- deps diferidas ---
 try:
@@ -777,7 +777,7 @@ def bna_extract_meta(file_like):
     return {"account_number": acc, "cbu": cbu, "period_start": pstart, "period_end": pend}
 
 # ---------- UI principal ----------
-uploaded = st.file_uploader("Subí un PDF del resumen bancario", type=["pdf"])
+uploaded = st.file_uploader("Subí un PDF del resumen bancario del Galicia", type=["pdf"])
 if uploaded is None:
     st.info("La app no almacena datos, toda la información está protegida.")
     st.stop()
