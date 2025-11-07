@@ -1,5 +1,3 @@
-echo "3.12" > runtime.txt
-git add runtime.txt
-git commit -m "Fix: pin Python 3.12 for Streamlit Cloud"
-git push
+python-3.12
+
 
