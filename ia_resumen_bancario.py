@@ -647,39 +647,37 @@ def render_account_report(
     styled = df_sorted.style.format({c: fmt_ar for c in ["debito","credito","importe","saldo"]}, na_rep="—")
     st.dataframe(styled, use_container_width=True)
 
-    # ==== Descargas ====
+        # Descargas
     st.caption("Descargar")
-
-    # Excel obligatorio (sin fallback a CSV)
     try:
-        try:
-            import xlsxwriter
-            engine = "xlsxwriter"
-        except Exception:
-            # Si no está xlsxwriter, intentamos con openpyxl
-            engine = "openpyxl"
+        import xlsxwriter  # mismo que usabas antes
 
         output = io.BytesIO()
-        with pd.ExcelWriter(output, engine=engine) as writer:
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
             df_sorted.to_excel(writer, index=False, sheet_name="Movimientos")
-            wb  = writer.book
-            ws  = writer.sheets["Movimientos"]
-            money_fmt = wb.add_format({"num_format": "#,##0.00"}) if engine == "xlsxwriter" else None
-            date_fmt  = wb.add_format({"num_format": "dd/mm/yyyy"}) if engine == "xlsxwriter" else None
 
+            wb = writer.book
+            ws = writer.sheets["Movimientos"]
+
+            money_fmt = wb.add_format({"num_format": "#,##0.00"})
+            date_fmt  = wb.add_format({"num_format": "dd/mm/yyyy"})
+
+            # Ajuste de anchos de columnas
             for idx, col in enumerate(df_sorted.columns, start=0):
                 col_values = df_sorted[col].astype(str)
                 max_len = max(len(col), *(len(v) for v in col_values))
                 ws.set_column(idx, idx, min(max_len + 2, 40))
 
-            if engine == "xlsxwriter":
-                for c in ["debito","credito","importe","saldo"]:
-                    if c in df_sorted.columns:
-                        j = df_sorted.columns.get_loc(c)
-                        ws.set_column(j, j, 16, money_fmt)
-                if "fecha" in df_sorted.columns:
-                    j = df_sorted.columns.get_loc("fecha")
-                    ws.set_column(j, j, 14, date_fmt)
+            # Formato numérico para montos
+            for c in ["debito", "credito", "importe", "saldo"]:
+                if c in df_sorted.columns:
+                    j = df_sorted.columns.get_loc(c)
+                    ws.set_column(j, j, 16, money_fmt)
+
+            # Formato fecha
+            if "fecha" in df_sorted.columns:
+                j = df_sorted.columns.get_loc("fecha")
+                ws.set_column(j, j, 14, date_fmt)
 
         st.download_button(
             "📥 Descargar Excel",
@@ -689,6 +687,7 @@ def render_account_report(
             use_container_width=True,
             key=f"dl_xlsx_{acc_id}",
         )
+
     except Exception as e:
         st.error(f"No se pudo generar el archivo de Excel: {e}")
 
